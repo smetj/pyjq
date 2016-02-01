@@ -117,7 +117,7 @@ setup(
         "build_ext": jq_build_ext,
         "sdist": sdist
     },
-    name='pyjq',
+    name='pyjq_static',
     version='1.1',
     description='Binding for jq JSON processor.',
     long_description=long_description,
