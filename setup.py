@@ -8,6 +8,7 @@ from setuptools import setup
 from distutils.extension import Extension
 from distutils.command.build_ext import build_ext
 from distutils.command.sdist import sdist as _sdist
+from Cython.Build import cythonize
 
 try:
     import sysconfig
@@ -39,16 +40,9 @@ oniguruma_lib_build_dir = path_in_dir("onig-5.9.6")
 oniguruma_lib_install_dir = path_in_dir("onig-install-5.9.6")
 
 
-class sdist(_sdist):
-    def run(self):
-        # Make sure the compiled Cython files in the distribution are up-to-date
-        from Cython.Build import cythonize
-        cythonize(['pyjq.pyx'])
-        _sdist.run(self)
-
-
 class jq_build_ext(build_ext):
     def run(self):
+        cythonize('pyjq.pyx')
         self._build_oniguruma()
         self._build_libjq()
         build_ext.run(self)
@@ -115,7 +109,6 @@ setup(
     ext_modules=[pyjq],
     cmdclass={
         "build_ext": jq_build_ext,
-        "sdist": sdist
     },
     name='pyjq_static',
     version='1.1',
