@@ -7,8 +7,6 @@ import shutil
 from setuptools import setup
 from distutils.extension import Extension
 from distutils.command.build_ext import build_ext
-from distutils.command.sdist import sdist as _sdist
-from Cython.Build import cythonize
 
 try:
     import sysconfig
@@ -42,7 +40,6 @@ oniguruma_lib_install_dir = path_in_dir("onig-install-5.9.6")
 
 class jq_build_ext(build_ext):
     def run(self):
-        cythonize('pyjq.pyx')
         self._build_oniguruma()
         self._build_libjq()
         build_ext.run(self)
