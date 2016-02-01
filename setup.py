@@ -22,8 +22,10 @@ try:
 except ImportError:
     from urllib.request import urlretrieve
 
+
 def path_in_dir(relative_path):
     return os.path.abspath(os.path.join(os.path.dirname(__file__), relative_path))
+
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -36,12 +38,14 @@ oniguruma_lib_tarball_path = path_in_dir("_onig-5.9.6.tar.gz")
 oniguruma_lib_build_dir = path_in_dir("onig-5.9.6")
 oniguruma_lib_install_dir = path_in_dir("onig-install-5.9.6")
 
+
 class sdist(_sdist):
     def run(self):
         # Make sure the compiled Cython files in the distribution are up-to-date
         from Cython.Build import cythonize
         cythonize(['pyjq.pyx'])
         _sdist.run(self)
+
 
 class jq_build_ext(build_ext):
     def run(self):
