@@ -16,14 +16,14 @@ __all__ = [
 ]
 
 
-def compile(script, vars={}):
+cdef compile(script, vars={}):
     """
     Compile a jq script, retuning a script object.
     """
     return _Script(script.encode('utf-8'), vars=vars)
 
 
-def _opener(url):
+cdef _opener(url):
     res = urllib.request.urlopen(url)
     content_type = res.getheader('Content-Type')
 
@@ -39,7 +39,7 @@ def _opener(url):
     return res.read().decode(encoding)
 
 
-def _get_value(value, url, opener):
+cdef _get_value(value, url, opener):
     if url is not None:
         if value is not None:
             raise TypeError("'value' and 'url' are not able to specified at the same time")
@@ -49,48 +49,40 @@ def _get_value(value, url, opener):
     return value
 
 
-def _ensure_kwargs_empty(kw):
+cdef _ensure_kwargs_empty(kw):
     if kw:
         raise TypeError('Got unexpected keyward argument {}'.format(', '.join(kw)))
 
 
-def all(script, value=None, **kw):
+cdef all(script, value=None, url=None, vars={}, opener=None):
     """
     Transform object by jq script, returning all results as list.
     """
-    url = kw.pop('url', None)
-    vars = kw.pop('vars', {})
-    opener = kw.pop('opener', None)
-    _ensure_kwargs_empty(kw)
-
+    vars = dict(vars)
     return compile(script, vars).all(_get_value(value, url, opener))
 
-apply = all
+cdef apply(script, value=None, url=None, vars={}, opener=None):
+    """
+    An alias of all()
+    """
+    return all(script, vars, url, vars, opener)
 
 
-def first(script, value=None, default=None, **kw):
+cdef first(script, value=None, default=None, url=None, vars={}, opener=None):
     """
     Transform object by jq script, returning the first result.
     Return default if result is empty.
     """
-    url = kw.pop('url', None)
-    vars = kw.pop('vars', {})
-    opener = kw.pop('opener', None)
-    _ensure_kwargs_empty(kw)
-
+    vars = dict(vars)
     return compile(script, vars).first(_get_value(value, url, opener), default)
 
 
-def one(script, value=None, **kw):
+cdef one(script, value=None, url=None, vars={}, opener=None):
     """
     Transform object by jq script, returning the first result.
     Raise ValueError unless results does not include exactly one element.
     """
-    url = kw.pop('url', None)
-    vars = kw.pop('vars', {})
-    opener = kw.pop('opener', None)
-    _ensure_kwargs_empty(kw)
-
+    vars = dict(vars)
     return compile(script, vars).one(_get_value(value, url, opener))
 
 
@@ -257,7 +249,7 @@ cdef class _Script:
     def __dealloc__(self):
         jq_teardown(&self._jq)
 
-    def all(self, pyobj):
+    cdef all(self, pyobj):
         "Transform object by jq script, returning all results as list"
         cdef jv value = pyobj_to_jv(pyobj)
         jq_start(self._jq, value, 0)
@@ -272,9 +264,10 @@ cdef class _Script:
                 output.append(jv_to_pyobj(result))
         return output
 
-    apply = all
+    cdef apply(self, pyobj):
+        return self.all(pyobj)
 
-    def first(self, value, default=None):
+    cdef first(self, value, default=None):
         """
         Transform object by jq script, returning the first result.
         Return default if result is empty.
@@ -284,7 +277,7 @@ cdef class _Script:
             return default
         return ret[0]
 
-    def one(self, value):
+    cdef one(self, value):
         """
         Transform object by jq script, returning the first result.
         Raise ValueError unless results does not include exactly one element.
