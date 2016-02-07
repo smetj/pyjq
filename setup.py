@@ -24,8 +24,8 @@ def path_in_dir(relative_path):
 
 class jq_build_ext(build_ext):
     def run(self):
-        self._build_oniguruma()
-        self._build_libjq()
+        # self._build_oniguruma()
+        # self._build_libjq()
         build_ext.run(self)
 
     def _build_oniguruma(self):
@@ -51,7 +51,7 @@ class jq_build_ext(build_ext):
             commands=[
                 ["autoreconf", "-i"],
                 ["./configure", "CFLAGS=-fPIC", "--disable-maintainer-mode", "--with-oniguruma=%s/dependencies/onig_install" % (os.getcwd())],
-                ["make"],
+                ["make", "-j8", "LDFLAGS=-all-static"],
             ]
         )
 
