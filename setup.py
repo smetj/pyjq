@@ -70,7 +70,7 @@ class jq_build_ext(build_ext):
     def _extract_tarball(self, tarball_path):
         tarfile.open(tarball_path, "r:gz").extractall(path_in_dir("./dependencies"))
 
-    def _safe_rmtree(d):
+    def _safe_rmtree(self, d):
         try:
             shutil.rmtree(d)
         except OSError:
