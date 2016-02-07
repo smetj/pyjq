@@ -30,7 +30,7 @@ class jq_build_ext(build_ext):
         build_ext.run(self)
 
     def _build_oniguruma(self):
-        self._handle_tarball("dependencies/onig-{onig}.tar.gz".format(**DEPENDENCY_VERSIONS))
+        self._extract_tarball("dependencies/onig-{onig}.tar.gz".format(**DEPENDENCY_VERSIONS))
         os.mkdir("dependencies/onig_install")
         self._build_lib(
             lib_dir="dependencies/onig-{onig}".format(**DEPENDENCY_VERSIONS),
@@ -41,7 +41,7 @@ class jq_build_ext(build_ext):
             ])
 
     def _build_libjq(self):
-        self._handle_tarball("dependencies/jq-{jq}.tar.gz".format(**DEPENDENCY_VERSIONS))
+        self._extract_tarball("dependencies/jq-{jq}.tar.gz".format(**DEPENDENCY_VERSIONS))
         self._build_lib(
             lib_dir="dependencies/jq-jq-{jq}".format(**DEPENDENCY_VERSIONS),
             commands=[
@@ -75,8 +75,7 @@ class jq_build_ext(build_ext):
             except Exception:
                 pass
 
-    def _handle_tarball(self, tarball_path):
-
+    def _extract_tarball(self, tarball_path):
         tarfile.open(tarball_path, "r:gz").extractall(path_in_dir("./dependencies"))
 
 
