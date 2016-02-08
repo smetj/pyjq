@@ -7,6 +7,7 @@ import shutil
 from setuptools import setup
 from distutils.extension import Extension
 from distutils.command.build_ext import build_ext
+from Cython.Build import cythonize
 
 try:
     import sysconfig
@@ -29,9 +30,13 @@ def path_in_dir(relative_path):
 class jq_build_ext(build_ext):
     def run(self):
         self._cleanup()
+        self._cythonize()
         self._build_oniguruma()
         self._build_libjq()
         build_ext.run(self)
+
+    def _cythonize(self):
+        cythonize('pyjq.pyx')
 
     def _build_oniguruma(self):
         self._handle_tarball("dependencies/onig-{onig}.tar.gz".format(**DEPENDENCY_VERSIONS))
